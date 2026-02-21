@@ -1,9 +1,11 @@
 //
 //  ContentView.swift
-//  
+//  SideSketchIpad
 //
 //  Created by Yamir A. Poldo Silva on 2026-02-20.
 //
+
+import SwiftUI
 
 struct ContentView: View {
     @StateObject var manager = ConnectivityManager()
