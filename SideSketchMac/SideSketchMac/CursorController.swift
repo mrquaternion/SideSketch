@@ -1,62 +1,69 @@
-//
-//  CursorController.swift
-//  SideSketchMac
-//
-//  Created by Yamir A. Poldo Silva on 2026-02-20.
-//
 
-
-import Cocoa
+import Foundation
 import CoreGraphics
+import AppKit
 
+@MainActor
 final class CursorController {
 
-    // État interne : est-ce qu'on est en "clic maintenu" ?
-    private var isMouseDown = false
+    private var wasActive: Bool = false
 
-    // Récupération de l'écran principal
-    private var screenFrame: CGRect {
-        NSScreen.main?.frame ?? CGRect(x: 0, y: 0, width: 1920, height: 1080)
-    }
-
-    func processPacket(_ packet: StylusPacket) {
-        // 1) Dénormalisation 0.0–1.0 -> coordonnées écran
-        let targetX = packet.x * screenFrame.width + screenFrame.origin.x
-        let targetY = packet.y * screenFrame.height + screenFrame.origin.y
-
-        let point = CGPoint(x: targetX, y: targetY)
-
-        // 2) Gestion hover / down / drag / up
-        if packet.isActive {
-            if !isMouseDown {
-                // Début du clic
-                postMouseEvent(type: .leftMouseDown, position: point)
-                isMouseDown = true
-            } else {
-                // Drag (clic maintenu + mouvement)
-                postMouseEvent(type: .leftMouseDragged, position: point)
-            }
-        } else {
-            if isMouseDown {
-                // Relâchement
-                postMouseEvent(type: .leftMouseUp, position: point)
-                isMouseDown = false
-            } else {
-                // Simple déplacement du curseur (hover)
-                postMouseEvent(type: .mouseMoved, position: point)
-            }
+    func apply(packet: StylusPacket) {
+        guard let screenPoint = convertToScreenPoint(normalizedX: packet.x, normalizedY: packet.y) else {
+            return
         }
+
+        CGWarpMouseCursorPosition(screenPoint)
+
+        switch (wasActive, packet.isActive) {
+        case (false, true):
+            postMouseEvent(type: .leftMouseDown, at: screenPoint, pressure: packet.pressure)
+        case (true, true):
+            postMouseEvent(type: .leftMouseDragged, at: screenPoint, pressure: packet.pressure)
+        case (true, false):
+            postMouseEvent(type: .leftMouseUp, at: screenPoint, pressure: 0)
+        case (false, false):
+            postMouseEvent(type: .mouseMoved, at: screenPoint, pressure: 0)
+        }
+
+        wasActive = packet.isActive
     }
 
-    private func postMouseEvent(type: CGEventType, position: CGPoint) {
-        let button: CGMouseButton = .left
+    // MARK: - Conversion Coordonnées (Fix Bug #2 : Retina)
+
+    private func convertToScreenPoint(normalizedX: CGFloat, normalizedY: CGFloat) -> CGPoint? {
+
+        let bounds = CGDisplayBounds(CGMainDisplayID())
+        guard bounds.width > 0, bounds.height > 0 else { return nil }
+
+        let x = normalizedX * bounds.width
+        let y = normalizedY * bounds.height
+
+        return CGPoint(x: x, y: y)
+    }
+
+    // MARK: - Événements CGEvent
+
+    private func postMouseEvent(type: CGEventType, at point: CGPoint, pressure: CGFloat) {
+        let isTrusted = AXIsProcessTrusted()
+        if !isTrusted {
+            // Pas de spam dans les logs — on ne log que pour les down/up
+            if type == .leftMouseDown {
+                print("[CursorController] Accessibilité refusée — clics ignorés")
+            }
+            return
+        }
 
         guard let event = CGEvent(
             mouseEventSource: nil,
             mouseType: type,
-            mouseCursorPosition: position,
-            mouseButton: button
+            mouseCursorPosition: point,
+            mouseButton: type == .mouseMoved ? .center : .left
         ) else { return }
+
+        if type == .leftMouseDown || type == .leftMouseDragged {
+            event.setDoubleValueField(.mouseEventPressure, value: Double(pressure))
+        }
 
         event.post(tap: .cghidEventTap)
     }
