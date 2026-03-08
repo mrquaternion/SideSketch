@@ -1,4 +1,3 @@
-
 import Foundation
 import CoreGraphics
 import AppKit
@@ -8,46 +7,61 @@ final class CursorController {
 
     private var wasActive: Bool = false
 
+    private let sensitivity: CGFloat = 1.6
+
     func apply(packet: StylusPacket) {
-        guard let screenPoint = convertToScreenPoint(normalizedX: packet.x, normalizedY: packet.y) else {
+        guard let newPoint = computeNextCursorPoint(from: packet) else {
             return
         }
 
-        CGWarpMouseCursorPosition(screenPoint)
+        CGWarpMouseCursorPosition(newPoint)
 
         switch (wasActive, packet.isActive) {
         case (false, true):
-            postMouseEvent(type: .leftMouseDown, at: screenPoint, pressure: packet.pressure)
+            postMouseEvent(type: .leftMouseDown, at: newPoint, pressure: packet.pressure)
+
         case (true, true):
-            postMouseEvent(type: .leftMouseDragged, at: screenPoint, pressure: packet.pressure)
+            postMouseEvent(type: .leftMouseDragged, at: newPoint, pressure: packet.pressure)
+
         case (true, false):
-            postMouseEvent(type: .leftMouseUp, at: screenPoint, pressure: 0)
+            postMouseEvent(type: .leftMouseUp, at: newPoint, pressure: 0)
+
         case (false, false):
-            postMouseEvent(type: .mouseMoved, at: screenPoint, pressure: 0)
+            postMouseEvent(type: .mouseMoved, at: newPoint, pressure: 0)
         }
 
         wasActive = packet.isActive
     }
 
-    // MARK: - Conversion Coordonnées (Fix Bug #2 : Retina)
-
-    private func convertToScreenPoint(normalizedX: CGFloat, normalizedY: CGFloat) -> CGPoint? {
-
-        let bounds = CGDisplayBounds(CGMainDisplayID())
-        guard bounds.width > 0, bounds.height > 0 else { return nil }
-
-        let x = normalizedX * bounds.width
-        let y = normalizedY * bounds.height
-
-        return CGPoint(x: x, y: y)
+    func resetInteractionState() {
+        wasActive = false
     }
 
-    // MARK: - Événements CGEvent
+    private func computeNextCursorPoint(from packet: StylusPacket) -> CGPoint? {
+        guard let currentLocation = CGEvent(source: nil)?.location else {
+            return nil
+        }
+
+        let displayBounds = CGDisplayBounds(CGMainDisplayID())
+        guard displayBounds.width > 0, displayBounds.height > 0 else {
+            return nil
+        }
+
+        let deltaXInPixels = packet.deltaX * displayBounds.width * sensitivity
+        let deltaYInPixels = packet.deltaY * displayBounds.height * sensitivity
+
+        let newX = currentLocation.x + deltaXInPixels
+        let newY = currentLocation.y + deltaYInPixels
+
+        let clampedX = min(max(newX, displayBounds.minX), displayBounds.maxX - 1)
+        let clampedY = min(max(newY, displayBounds.minY), displayBounds.maxY - 1)
+
+        return CGPoint(x: clampedX, y: clampedY)
+    }
 
     private func postMouseEvent(type: CGEventType, at point: CGPoint, pressure: CGFloat) {
         let isTrusted = AXIsProcessTrusted()
         if !isTrusted {
-            // Pas de spam dans les logs — on ne log que pour les down/up
             if type == .leftMouseDown {
                 print("[CursorController] Accessibilité refusée — clics ignorés")
             }

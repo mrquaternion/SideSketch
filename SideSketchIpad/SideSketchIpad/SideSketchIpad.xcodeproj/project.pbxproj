@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		BD95E53F2F496609003B3DB0 /* SideSketchIpad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SideSketchIpad.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD95E53F2F496609003B3DB0 /* SideSketchIpad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = SideSketchIpad.app; path = "/Users/yamira.poldosilva/Documents/SideSketch/SideSketchMac/SideSketchIpad/build/Debug-iphoneos/SideSketchIpad.app"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -46,16 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				BD95E5412F496609003B3DB0 /* SideSketchIpad */,
-				BD95E5402F496609003B3DB0 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		BD95E5402F496609003B3DB0 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				BD95E53F2F496609003B3DB0 /* SideSketchIpad.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -108,7 +99,7 @@
 			mainGroup = BD95E5362F496609003B3DB0;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = BD95E5402F496609003B3DB0 /* Products */;
+			productRefGroup = BD95E5362F496609003B3DB0;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (

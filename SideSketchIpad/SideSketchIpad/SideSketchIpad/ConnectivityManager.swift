@@ -6,17 +6,11 @@ import Combine
 @MainActor
 final class ConnectivityManager: ObservableObject {
 
-    // MARK: - États publiés
-
     @Published var connectionStatus: String = "Déconnecté"
     @Published var isConnected: Bool = false
 
-    // MARK: - Réseau
-
     private var connection: NWConnection?
     private let port: NWEndpoint.Port = 12345
-
-    // MARK: - Connexion
 
     func connect(to ipAddress: String) {
         disconnect()
@@ -37,15 +31,15 @@ final class ConnectivityManager: ObservableObject {
                 switch state {
                 case .ready:
                     self.isConnected = true
-                    self.connectionStatus = "✅ Connecté à \(ipAddress)"
+                    self.connectionStatus = "Connecté à \(ipAddress)"
                 case .waiting(let error):
-                    self.connectionStatus = "⏳ En attente… (\(error.localizedDescription))"
+                    self.connectionStatus = "En attente… (\(error.localizedDescription))"
                 case .failed(let error):
                     self.isConnected = false
-                    self.connectionStatus = "❌ Échec : \(error.localizedDescription)"
+                    self.connectionStatus = "Échec : \(error.localizedDescription)"
                 case .cancelled:
                     self.isConnected = false
-                    self.connectionStatus = "⏹ Déconnecté"
+                    self.connectionStatus = "Déconnecté"
                 default:
                     break
                 }
@@ -53,7 +47,7 @@ final class ConnectivityManager: ObservableObject {
         }
 
         connection?.start(queue: .global(qos: .userInteractive))
-        connectionStatus = "🔄 Connexion à \(ipAddress)…"
+        connectionStatus = "Connexion à \(ipAddress)…"
     }
 
     func disconnect() {
@@ -63,7 +57,6 @@ final class ConnectivityManager: ObservableObject {
         connectionStatus = "Déconnecté"
     }
 
-    // MARK: - Envoi des paquets
 
     func send(packet: StylusPacket) {
         guard isConnected, let connection else { return }

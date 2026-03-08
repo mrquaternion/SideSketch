@@ -2,8 +2,8 @@ import Foundation
 import CoreGraphics
 
 struct StylusPacket: Codable, Sendable {
-    let x: CGFloat
-    let y: CGFloat
+    let deltaX: CGFloat
+    let deltaY: CGFloat
     let pressure: CGFloat
     let isActive: Bool
 }

@@ -1,5 +1,3 @@
-// ReceiverManager.swift
-// Projet : SideSketchMac
 
 import Foundation
 import Network
@@ -117,9 +115,6 @@ final class ReceiverManager: ObservableObject {
 
         connection.start(queue: .global(qos: .userInteractive))
     }
-
-    // MARK: - Réception avec buffer (Fix Bug #1 : TCP batching)
-
 
     private func receiveNextChunk(on connection: NWConnection) {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { data, _, isComplete, error in
