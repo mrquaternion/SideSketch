@@ -1,4 +1,4 @@
-#SideSketch
+# SideSketch
 
 **SideSketch** est une solution permettant d'utiliser un iPad comme tablette graphique pour macOS. Ce projet utilise une architecture client-serveur TCP pour transmettre les données de l'Apple Pencil avec une latence minimale.
 
