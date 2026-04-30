@@ -70,7 +70,7 @@ struct ConnectionSettingsView: View {
                         .fill(connectivity.isConnected ? .green : .red)
                         .frame(width: 10, height: 10)
 
-                    Text(connectivity.connectionStatus)
+                    Text(connectivity.connectionStatus.description)
                         .font(.caption)
                         .foregroundStyle(statusColor)
                 }
@@ -125,8 +125,8 @@ struct ConnectionSettingsView: View {
 
     private var statusColor: Color {
         if connectivity.isConnected { return .green }
-        if connectivity.connectionStatus.contains("X") { return .red }
-        if connectivity.connectionStatus.contains("Time") { return .orange }
+        if connectivity.connectionStatus.description.contains("X") { return .red }
+        if connectivity.connectionStatus.description.contains("Time") { return .orange }
         return .secondary
     }
 

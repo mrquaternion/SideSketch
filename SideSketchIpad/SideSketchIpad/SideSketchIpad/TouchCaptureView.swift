@@ -1,8 +1,9 @@
 import SwiftUI
 import UIKit
 
-struct TouchCaptureView: UIViewRepresentable {
-    let connectivityManager: ConnectivityManager
+struct TouchCaptureView<Manager: ConnectivityManaging>: UIViewRepresentable {
+    
+    let connectivityManager: Manager
     var onTouchLocationChanged: ((CGPoint) -> Void)? = nil
     var onTouchEnded: (() -> Void)? = nil
 
@@ -24,7 +25,7 @@ struct TouchCaptureView: UIViewRepresentable {
 
 final class TouchCaptureUIView: UIView {
 
-    var connectivityManager: ConnectivityManager?
+    var connectivityManager: (any ConnectivityManaging)?
     var onTouchLocationChanged: ((CGPoint) -> Void)?
     var onTouchEnded: (() -> Void)?
 
@@ -36,7 +37,7 @@ final class TouchCaptureUIView: UIView {
         backgroundColor = UIColor.systemBackground
         layer.borderWidth = 1
         layer.borderColor = UIColor.systemGray4.cgColor
-        layer.cornerRadius = 12
+        layer.cornerRadius = 24
         clipsToBounds = true
     }
 

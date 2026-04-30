@@ -1,46 +1,46 @@
 import SwiftUI
 
-struct DrawingView: View {
-    @ObservedObject var connectivity: ConnectivityManager
+struct DrawingView<Manager: ConnectivityManaging>: View {
+    @ObservedObject var connectivity: Manager
 
     @State private var trackerLocation: CGPoint? = nil
     @State private var trackerVisible = false
 
     var body: some View {
-        ZStack {
+        Group {
             if connectivity.isConnected {
-                TouchCaptureView(
-                    connectivityManager: connectivity,
-                    onTouchLocationChanged: { point in
-                        trackerLocation = point
-                        trackerVisible = true
-                    },
-                    onTouchEnded: {
-                        trackerVisible = false
-                    }
-                )
-                .padding(12)
-                .overlay(alignment: .topLeading) {
+                VStack(alignment: .leading) {
                     Label("Zone active", systemImage: "pencil.tip")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                        .padding(8)
-                }
-                .overlay {
-                    if trackerVisible, let point = trackerLocation {
-                        ZStack {
-                            Circle()
-                                .stroke(.blue.opacity(0.9), lineWidth: 2)
-                                .frame(width: 28, height: 28)
-
-                            Circle()
-                                .fill(.blue)
-                                .frame(width: 8, height: 8)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    
+                    TouchCaptureView(
+                        connectivityManager: connectivity,
+                        onTouchLocationChanged: { point in
+                            trackerLocation = point
+                            trackerVisible = true
+                        },
+                        onTouchEnded: {
+                            trackerVisible = false
                         }
-                        .position(point)
-                        .allowsHitTesting(false)
+                    )
+                    .overlay {
+                        if trackerVisible, let point = trackerLocation {
+                            ZStack {
+                                Circle()
+                                    .stroke(.blue.opacity(0.9), lineWidth: 2)
+                                    .frame(width: 28, height: 28)
+
+                                Circle()
+                                    .fill(.blue)
+                                    .frame(width: 8, height: 8)
+                            }
+                            .position(point)
+                            .allowsHitTesting(false)
+                        }
                     }
                 }
+                .padding(.horizontal, 24)
             } else {
                 disconnectedPlaceholder
             }
@@ -76,3 +76,12 @@ struct DrawingView: View {
         .padding(40)
     }
 }
+
+#Preview("Version non-connecté") {
+    DrawingView(connectivity: MockConnectivityManager(shouldBeConnected: false))
+}
+
+#Preview("Version connecté (simulation)") {    
+    DrawingView(connectivity: MockConnectivityManager(shouldBeConnected: true))
+}
+
