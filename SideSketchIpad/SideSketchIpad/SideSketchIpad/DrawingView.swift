@@ -9,36 +9,36 @@ struct DrawingView<Manager: ConnectivityManaging>: View {
     var body: some View {
         Group {
             if connectivity.isConnected {
-                VStack(alignment: .leading) {
+                TouchCaptureView(
+                    connectivityManager: connectivity,
+                    onTouchLocationChanged: { point in
+                        trackerLocation = point
+                        trackerVisible = true
+                    },
+                    onTouchEnded: {
+                        trackerVisible = false
+                    }
+                )
+                .overlay {
+                    if trackerVisible, let point = trackerLocation {
+                        ZStack {
+                            Circle()
+                                .stroke(.blue.opacity(0.9), lineWidth: 2)
+                                .frame(width: 28, height: 28)
+
+                            Circle()
+                                .fill(.blue)
+                                .frame(width: 8, height: 8)
+                        }
+                        .position(point)
+                        .allowsHitTesting(false)
+                    }
+                }
+                .overlay(alignment: .topLeading) {
                     Label("Zone active", systemImage: "pencil.tip")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                    
-                    TouchCaptureView(
-                        connectivityManager: connectivity,
-                        onTouchLocationChanged: { point in
-                            trackerLocation = point
-                            trackerVisible = true
-                        },
-                        onTouchEnded: {
-                            trackerVisible = false
-                        }
-                    )
-                    .overlay {
-                        if trackerVisible, let point = trackerLocation {
-                            ZStack {
-                                Circle()
-                                    .stroke(.blue.opacity(0.9), lineWidth: 2)
-                                    .frame(width: 28, height: 28)
-
-                                Circle()
-                                    .fill(.blue)
-                                    .frame(width: 8, height: 8)
-                            }
-                            .position(point)
-                            .allowsHitTesting(false)
-                        }
-                    }
+                        .padding([.leading, .top], 24)
                 }
                 .padding(.horizontal, 24)
             } else {

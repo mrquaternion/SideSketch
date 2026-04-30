@@ -10,21 +10,22 @@ import Combine
 @MainActor
 final class MockConnectivityManager: ConnectivityManaging {
     @Published var connectionStatus: ConnectionStatus
-    @Published var isConnected: Bool
+    
+    var isConnected: Bool {
+        if case .connected = connectionStatus { return true}
+        return false
+    }
     
     init(shouldBeConnected: Bool) {
-        self.isConnected = shouldBeConnected
         self.connectionStatus = shouldBeConnected ? .connected(ipAddress: "192.168.1.42") : .disconnected
     }
     
     func connect(to ipAddress: String) {
         connectionStatus = .connected(ipAddress: ipAddress)
-        isConnected = true
     }
     
     func disconnect() {
         connectionStatus = .disconnected
-        isConnected = false
     }
     
     func send(packet: StylusPacket) { }

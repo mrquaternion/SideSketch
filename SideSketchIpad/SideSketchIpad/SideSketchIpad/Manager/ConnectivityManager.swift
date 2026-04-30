@@ -7,10 +7,14 @@ import Combine
 final class ConnectivityManager: ObservableObject, ConnectivityManaging {
 
     @Published var connectionStatus: ConnectionStatus = .disconnected
-    @Published var isConnected: Bool = false
 
     private var connection: NWConnection?
     private let port: NWEndpoint.Port = 12345
+    
+    var isConnected: Bool {
+        if case .connected = connectionStatus { return true}
+        return false
+    }
 
     func connect(to ipAddress: String) {
         disconnect()
@@ -30,15 +34,12 @@ final class ConnectivityManager: ObservableObject, ConnectivityManaging {
                 guard let self else { return }
                 switch state {
                 case .ready:
-                    self.isConnected = true
                     self.connectionStatus = .connected(ipAddress: ipAddress)
                 case .waiting(let error):
                     self.connectionStatus = .waiting(errorLiteral: error.localizedDescription)
                 case .failed(let error):
-                    self.isConnected = false
                     self.connectionStatus = .failed(errorLiteral: error.localizedDescription)
                 case .cancelled:
-                    self.isConnected = false
                     self.connectionStatus = .disconnected
                 default:
                     break
@@ -53,7 +54,6 @@ final class ConnectivityManager: ObservableObject, ConnectivityManaging {
     func disconnect() {
         connection?.cancel()
         connection = nil
-        isConnected = false
         connectionStatus = .disconnected
     }
 
