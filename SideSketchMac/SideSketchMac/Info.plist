@@ -7,6 +7,6 @@
 		<string>_test._tcp</string>
 	</array>
 	<key>LSUIElement</key>
-	<true/>
+	<false/>
 </dict>
 </plist>

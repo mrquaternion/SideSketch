@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    
     @StateObject private var connectivity = ConnectivityManager()
     @AppStorage("mac_ip_address") private var macIPAddress: String = ""
     @State private var showSettingsPopover = false

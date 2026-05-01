@@ -64,5 +64,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .environmentObject(ReceiverManager(cursorController: CursorController()))
+        .environmentObject(ReceiverManager(canvasModel: CanvasModel()))
 }

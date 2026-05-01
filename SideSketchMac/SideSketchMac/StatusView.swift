@@ -206,5 +206,5 @@ struct StatusView: View {
 
 #Preview {
     StatusView()
-        .environmentObject(ReceiverManager(cursorController: CursorController()))
+        .environmentObject(ReceiverManager(canvasModel: CanvasModel()))
 }

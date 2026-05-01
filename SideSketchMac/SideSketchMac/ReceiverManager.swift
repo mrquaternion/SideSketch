@@ -2,23 +2,24 @@
 import Foundation
 import Network
 import Combine
+import AppKit
 
 @MainActor
 final class ReceiverManager: ObservableObject {
 
-    @Published var statusMessage: String = "En attente de démarrage…"
+    @Published var statusMessage: String = "En attente de démarrage..."
     @Published var isListening: Bool = false
     @Published var connectedClientAddress: String? = nil
 
-    private let cursorController: CursorController
+    private let canvasModel: CanvasModel
     private var listener: NWListener?
     private var activeConnection: NWConnection?
     private let port: NWEndpoint.Port = 12345
 
     private var receiveBuffer: Data = Data()
 
-    init(cursorController: CursorController) {
-        self.cursorController = cursorController
+    init(canvasModel: CanvasModel) {
+        self.canvasModel = canvasModel
     }
 
     func startListening() {
@@ -152,7 +153,7 @@ final class ReceiverManager: ObservableObject {
 
             if !packetData.isEmpty,
                let packet = try? JSONDecoder().decode(StylusPacket.self, from: packetData) {
-                cursorController.apply(packet: packet)
+                canvasModel.apply(packet: packet)
             }
         }
     }
